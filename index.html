@@ -1481,6 +1481,7 @@ async function processPapers() {
     } catch(err) {
       paper.status = 'error';
       console.error('PYP extraction error:', err);
+      showError('Could not extract "' + paper.name + '": ' + err.message);
     }
     renderPypFiles();
   }
