@@ -60,12 +60,12 @@
 
   /* Group row — top-level exam families */
   .exam-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 10px; }
-  .exam-group-btn { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: left; }
+  .exam-group-btn { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: left; color: var(--text); }
   .exam-group-btn:hover { border-color: var(--border2); background: var(--bg3); }
   .exam-group-btn.open { border-color: var(--accent); background: rgba(124,106,247,0.08); }
   .exam-group-btn.has-selection { border-color: var(--accent); }
-  .group-icon { font-size: 20px; margin-bottom: 8px; display: block; }
-  .group-name { font-size: 13px; font-weight: 600; display: block; margin-bottom: 3px; }
+  .group-icon { font-size: 20px; margin-bottom: 8px; display: block; color: var(--text); }
+  .group-name { font-size: 13px; font-weight: 600; display: block; margin-bottom: 3px; color: var(--text); }
   .group-sub { font-size: 11px; color: var(--muted); font-family: var(--mono); }
   .exam-group-btn.open .group-name { color: var(--accent); }
 
@@ -616,7 +616,7 @@ const EXAM_GROUPS = [
   },
   {
     id: 'ielts',
-    icon: '🗣',
+    icon: '💬',
     name: 'IELTS',
     sub: 'Academic / General',
     children: [
@@ -668,7 +668,7 @@ const EXAM_GROUPS = [
   },
   {
     id: 'upsc',
-    icon: '🏛',
+    icon: '⚖️',
     name: 'UPSC',
     sub: 'Civil Services',
     children: [
@@ -689,6 +689,50 @@ const EXAM_GROUPS = [
         sections: ['History & Culture', 'Geography', 'Polity & Economy', 'Science & Environment'],
         sectionDurs: [8, 7, 8, 7],
         topics: 'Indian History (Ancient, Medieval, Modern), Indian National Movement, Indian & World Geography (Physical, Social, Economic), Indian Polity & Governance, Economic & Social Development, Environment & Ecology, General Science — UPSC Prelims GS Paper 1'
+      }
+    ]
+  },
+  {
+    id: 'cat',
+    icon: '📊',
+    name: 'CAT',
+    sub: 'MBA Entrance',
+    children: [
+      {
+        id: 'cat-varc',
+        name: 'Verbal Ability & RC',
+        desc: 'Reading Comprehension, Para Jumbles, Odd Sentence, Para Summary',
+        questions: 20, duration: 40, pos: 3, neg: 1, qtype: 'mcq',
+        sections: ['Reading Comprehension', 'Verbal Ability'],
+        sectionDurs: [24, 16],
+        topics: 'Reading Comprehension (inference, main idea, author tone, vocab in context), Para Jumbles (rearranging sentences), Odd Sentence Out, Para Summary, Sentence Completion, Critical Reasoning — CAT VARC difficulty level'
+      },
+      {
+        id: 'cat-dilr',
+        name: 'Data Interpretation & LR',
+        desc: 'Tables, Graphs, Caselets, Arrangements, Puzzles',
+        questions: 20, duration: 40, pos: 3, neg: 1, qtype: 'mcq',
+        sections: ['Data Interpretation', 'Logical Reasoning'],
+        sectionDurs: [20, 20],
+        topics: 'Data Interpretation (Tables, Bar graphs, Line charts, Pie charts, Caselets, Mixed charts), Logical Reasoning (Seating arrangements, Blood relations, Scheduling, Input-Output, Syllogisms, Binary logic, Puzzles) — CAT DILR difficulty level'
+      },
+      {
+        id: 'cat-qa',
+        name: 'Quantitative Ability',
+        desc: 'Arithmetic, Algebra, Geometry, Number Systems, Modern Maths',
+        questions: 20, duration: 40, pos: 3, neg: 1, qtype: 'mcq',
+        sections: ['Quantitative Ability'],
+        sectionDurs: [40],
+        topics: 'Arithmetic (Percentages, Profit & Loss, Time-Speed-Distance, Time & Work, Mixtures, Ratios), Algebra (Equations, Functions, Progressions, Inequalities), Geometry (Triangles, Circles, Coordinate geometry, Mensuration), Number Systems (Factors, Remainders, LCM/HCF), Modern Maths (Permutation & Combination, Probability, Set Theory) — CAT QA difficulty level'
+      },
+      {
+        id: 'cat-full',
+        name: 'Full Mock (All 3 Sections)',
+        desc: 'VARC + DILR + QA — complete 2-hour CAT simulation',
+        questions: 45, duration: 120, pos: 3, neg: 1, qtype: 'mcq',
+        sections: ['Verbal Ability & RC', 'Data Interpretation & LR', 'Quantitative Ability'],
+        sectionDurs: [40, 40, 40],
+        topics: 'Reading Comprehension, Verbal Ability, Para Jumbles, Para Summary; Data Interpretation (Tables, Graphs, Caselets), Logical Reasoning (Arrangements, Puzzles); Arithmetic, Algebra, Geometry, Number Systems, Permutation & Combination, Probability — full CAT difficulty'
       }
     ]
   }
