@@ -964,33 +964,47 @@ async function callGemini(prompt) {
   return text;
 }
 
+function sanitisePaperText(text) {
+  if (!text) return '';
+  var result = '';
+  for (var i = 0; i < text.length && i < 2500; i++) {
+    var code = text.charCodeAt(i);
+    if (code >= 32 && code !== 127) { result += text[i]; }
+    else if (code === 9 || code === 10 || code === 13) { result += ' '; }
+  }
+  return result.replace(/"{2,}/g, '"').replace(/\\/g, '/').trim();
+}
+
 function buildPrompt(cfg) {
   const optCount = cfg.qtype === 'truefalse' ? 2 : cfg.qtype === 'mcq5' ? 5 : 4;
   const optLabels = ['A','B','C','D','E'].slice(0, optCount);
   const hasPapers = cfg.papers && cfg.papers.length > 0;
   const secLine = cfg.sections.length ? 'Sections: ' + cfg.sections.join(', ') : '';
 
-  const exampleOpts = optLabels.map(function(l) { return l + ') Example option'; });
-  const example = '[{"section":"Section Name","question":"Example question?","options":' + JSON.stringify(exampleOpts) + ',"correct":"A","explanation":"Brief reason A is correct."}]';
+  const exampleOpts = optLabels.map(function(l) { return l + ') Option text'; });
+  const example = '[{"section":"Section Name","question":"Question text?","options":' + JSON.stringify(exampleOpts) + ',"correct":"A","explanation":"Reason A is correct."}]';
 
   let context = '';
   if (cfg.pypMode === 'pyp' && hasPapers) {
-    context = 'I am providing content from ' + cfg.papers.length + ' previous year paper(s). Generate questions that closely match their style, difficulty, and topic distribution.\n\n'
-      + cfg.papers.map(function(p, i) { return '--- Paper ' + (i+1) + ' ---\n' + p.substring(0, 2500); }).join('\n\n') + '\n\n';
+    const paperBlocks = cfg.papers.map(function(p, i) {
+      return 'PAPER ' + (i+1) + ': ' + sanitisePaperText(p);
+    }).join('\n\n');
+    context = 'Reference these previous year papers for style and difficulty:\n\n' + paperBlocks + '\n\n';
   } else if (cfg.pypMode === 'mixed' && hasPapers) {
-    context = 'Reference these previous year papers (~50% PYP-inspired, ~50% syllabus):\n\n'
-      + cfg.papers.map(function(p, i) { return '--- Paper ' + (i+1) + ' ---\n' + p.substring(0, 1500); }).join('\n\n') + '\n\n';
+    const paperBlocks = cfg.papers.map(function(p, i) {
+      return 'PAPER ' + (i+1) + ': ' + sanitisePaperText(p).substring(0, 1200);
+    }).join('\n\n');
+    context = 'Reference papers (50% PYP-inspired):\n\n' + paperBlocks + '\n\n';
   }
 
   return context
-    + 'Generate exactly ' + cfg.qcount + ' multiple-choice questions for: ' + cfg.name + '.\n'
+    + 'Generate exactly ' + cfg.qcount + ' MCQ questions for: ' + cfg.name + '.\n'
     + (secLine ? secLine + '\n' : '')
     + (cfg.topics ? 'Topics: ' + cfg.topics + '\n' : '')
-    + 'Each question must have exactly ' + optCount + ' options (' + optLabels.join(', ') + ').\n'
-    + 'Mix difficulty: 30% easy, 50% medium, 20% hard.\n'
-    + 'For maths/science questions include specific numerical values.\n'
-    + 'Include a concise explanation for the correct answer.\n\n'
-    + 'Return a JSON array. Format:\n' + example;
+    + 'Rules: exactly ' + optCount + ' options (' + optLabels.join(', ') + ') per question, '
+    + '30% easy / 50% medium / 20% hard, include numbers in maths/science, '
+    + 'correct field is a single letter only.\n\n'
+    + 'Return ONLY a valid JSON array. No text before or after. Example:\n' + example;
 }
 
 async function generateQuestions(cfg) {
