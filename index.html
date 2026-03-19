@@ -966,13 +966,17 @@ async function callGemini(prompt) {
 
 function sanitisePaperText(text) {
   if (!text) return '';
+  // Keep ASCII printable, standard whitespace, and full Unicode (Hindi/Devanagari etc.)
+  // Only strip actual control characters (0-8, 11-12, 14-31, 127)
   var result = '';
   for (var i = 0; i < text.length && i < 2500; i++) {
     var code = text.charCodeAt(i);
-    if (code >= 32 && code !== 127) { result += text[i]; }
-    else if (code === 9 || code === 10 || code === 13) { result += ' '; }
+    var isControl = (code <= 8) || (code === 11) || (code === 12) || (code >= 14 && code <= 31) || (code === 127);
+    if (!isControl) result += text[i];
   }
-  return result.replace(/"{2,}/g, '"').replace(/\\/g, '/').trim();
+  // Escape backslashes and normalise quotes so they don't break JSON
+  result = result.replace(/\\/g, '/').replace(/\u2019|\u2018/g, "'").replace(/\u201C|\u201D/g, '"');
+  return result.trim();
 }
 
 function buildPrompt(cfg) {
@@ -1001,9 +1005,10 @@ function buildPrompt(cfg) {
     + 'Generate exactly ' + cfg.qcount + ' MCQ questions for: ' + cfg.name + '.\n'
     + (secLine ? secLine + '\n' : '')
     + (cfg.topics ? 'Topics: ' + cfg.topics + '\n' : '')
+    + 'IMPORTANT: Generate ALL questions and answers in ENGLISH only, even if reference material contains Hindi or other languages.\n'
     + 'Rules: exactly ' + optCount + ' options (' + optLabels.join(', ') + ') per question, '
     + '30% easy / 50% medium / 20% hard, include numbers in maths/science, '
-    + 'correct field is a single letter only.\n\n'
+    + 'correct field is a single letter only, no special characters in JSON strings.\n\n'
     + 'Return ONLY a valid JSON array. No text before or after. Example:\n' + example;
 }
 
